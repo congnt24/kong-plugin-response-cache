@@ -5,7 +5,7 @@ return {
       type = "table",
       schema = {
         fields = {
-          uris = { type = "array", required = true },
+          uris = { type = "array", required = false },
           vary_by_query_string_parameters = { type = "array", default = {} },
           vary_by_headers = { type = "array", default = {} },
           duration_in_seconds = { type = "string", required = true }

@@ -106,13 +106,7 @@ function CacheHandler:new()
 end
 
 function CacheHandler:access(conf)
-
-  ngx.log(ngx.NOTICE, "cache hittgdfhsghdfskjghkjs gs kjhfsgjk hksg dsjkfgjk 1 1 1 1")
   CacheHandler.super.access(self)
-
-  
-  ngx.log(ngx.NOTICE, "cache hittgdfhsghdfskjghkjs gs kjhfsgjk hksg dsjkfgjk")
-  
   local uri = ngx.var.uri
   if not cacheable_request(req_get_method(), uri, conf) then
     ngx.log(ngx.NOTICE, "not cacheable")
