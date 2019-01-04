@@ -11,17 +11,7 @@ local cjson_decode = require("cjson").decode
 local cjson_encode = require("cjson").encode
 
 local function cacheable_request(method, uri, conf)
-  if method ~= "GET" then
-    return false
-  end
-
-  for _,v in ipairs(conf.cache_policy.uris) do
-    if string.match(uri, "^"..v.."$") then
-      return true
-    end
-  end
-
-  return false
+  return true
 end
 
 local function get_cache_key(uri, headers, query_params, conf)
@@ -97,7 +87,7 @@ end
 local function red_set(premature, key, val, conf)
   local red, err = connect_to_redis(conf)
   if err then
-      ngx_log(ngx.ERR, "failed to connect to Redis: ", err)
+      ngx.log(ngx.ERR, "failed to connect to Redis: ", err)
   end
 
   red:init_pipeline()
@@ -107,7 +97,7 @@ local function red_set(premature, key, val, conf)
   end
   local results, err = red:commit_pipeline()
   if err then
-    ngx_log(ngx.ERR, "failed to commit the pipelined requests: ", err)
+    ngx.log(ngx.ERR, "failed to commit the pipelined requests: ", err)
   end
 end
 
@@ -116,7 +106,12 @@ function CacheHandler:new()
 end
 
 function CacheHandler:access(conf)
+
+  ngx.log(ngx.NOTICE, "cache hittgdfhsghdfskjghkjs gs kjhfsgjk hksg dsjkfgjk 1 1 1 1")
   CacheHandler.super.access(self)
+
+  
+  ngx.log(ngx.NOTICE, "cache hittgdfhsghdfskjghkjs gs kjhfsgjk hksg dsjkfgjk")
   
   local uri = ngx.var.uri
   if not cacheable_request(req_get_method(), uri, conf) then
@@ -127,7 +122,7 @@ function CacheHandler:access(conf)
   local cache_key = get_cache_key(uri, ngx.req.get_headers(), ngx.req.get_uri_args(), conf)  
   local red, err = connect_to_redis(conf)
   if err then
-    ngx_log(ngx.ERR, "failed to connect to Redis: ", err)
+    ngx.log(ngx.ERR, "failed to connect to Redis: ", err)
     return
   end
 
@@ -135,16 +130,18 @@ function CacheHandler:access(conf)
   if cached_val and cached_val ~= ngx.null then
     ngx.log(ngx.NOTICE, "cache hit")
     local val = json_decode(cached_val)
-    for k,v in pairs(val.headers) do
-      ngx.req.set_header(k, v)
-    end
+    -- for k,v in pairs(val.headers) do
+    --   ngx.req.set_header(k, v)
+    -- end
     return responses.send_HTTP_OK(val.content)
+
   end
 
   ngx.log(ngx.NOTICE, "cache miss")
   ngx.ctx.response_cache = {
     cache_key = cache_key
   }
+
 end
 
 function CacheHandler:header_filter(conf)
