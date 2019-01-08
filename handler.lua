@@ -9,7 +9,7 @@ local is_json_body = header_filter.is_json_body
 
 local cjson_decode = require("cjson").decode
 local cjson_encode = require("cjson").encode
-
+local inspect = require('inspect')
 local function cacheable_request(method, uri, conf)
   return true
 end
@@ -156,6 +156,9 @@ function CacheHandler:body_filter(conf)
   if not ctx then
     return
   end
+  -- for k, v in pairs(table) do
+    -- ngx.log(ngx.ERR, v[1])
+  -- end
 
   local chunk = ngx.arg[1]
   local eof = ngx.arg[2]
@@ -163,7 +166,8 @@ function CacheHandler:body_filter(conf)
   local res_body = ctx and ctx.res_body or ""
   res_body = res_body .. (chunk or "")
   ctx.res_body = res_body
-  if eof then
+  ngx.log(ngx.ERR, kong.response.get_status() < 299)
+  if eof and kong.response.get_status() < 299 then
     local content = json_decode(ctx.res_body)
     local value = { content = content, headers = ctx.headers }
     local value_json = json_encode(value)
